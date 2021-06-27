@@ -1,1 +1,40 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css" integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js" crossorigin="anonymous"></script>
+</head>
+<body class="format">
+    <main>
+        <h1 class="game-title">MatcheAdas</h1>
+        <div class="game-control">
+            <div class="score-container">
+                <p>Combo x<span id="combo">1</span></p>
+                <p>Puntos: <span id="score">0</span></p>
+            </div>
+            <div>
+                <button id="help-button" aria-label="Instrucciones">
+                    <i class="fas fa-info-circle" aria-hidden="true"></i>
+                </button>
+                <button id="restart-button" aria-label="Reiniciar">
+                    <i class="fas fa-undo-alt" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <div id="grid-container">
+            <div id="grid"></div>
+        </div>
+        <div class="time-container">
+            <i class="fas fa-hourglass-half" aria-hidden="true"></i>
+            <p class="time-remaining">0:00</p>
+        </div>
+    </main>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> 
+</body>
+<script src="script.js"></script>
+</html>
