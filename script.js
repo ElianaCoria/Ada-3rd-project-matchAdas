@@ -52,3 +52,35 @@ window.addEventListener('load', showWelcomeAlert((level) => {
     initilizeMatrix(size);
     displayGrid();
 }));
+
+// Initialize Matrix Game:
+
+const matrixData = [];
+
+const initilizeMatrix = (size) => {
+    for(let i = 0; i < size; i ++){
+        let row = [];
+        for(let j = 0; j < size; j ++){
+            let duplicateValueX;
+            if(j - 2 >= 0 && row[j - 1] == row[j - 2]){
+                duplicateValueX = row[j-1];
+            }
+            let duplicateValueY;
+            if(i - 2 >= 0 && matrixData[i - 1][j] == matrixData[i - 2][j]){
+                duplicateValueY = matrixData[i - 1][j];
+            }
+            let temporaryArray = [];
+
+            for(let k = 1; k <= 6; k++){
+                if(k !== duplicateValueX && k !== duplicateValueY){
+                    temporaryArray.push(k);
+                }
+            }
+            const positionRandom = Math.floor(Math.random() * (temporaryArray.length - 0));
+            const cell = temporaryArray[positionRandom];
+            row.push(cell);
+
+        }
+        matrixData.push(row);
+    }
+}
