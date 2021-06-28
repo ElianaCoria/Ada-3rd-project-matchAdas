@@ -152,9 +152,13 @@ i {
     width: 100px;
     height: 35px;
     align-self: flex-end;
-    background-color: var(--background-color-button);
+    background-color: var(--background-color);
+}
+
+.swal-button--dificil:focus{
+    box-shadow: none;
 }
 
 .swal-overlay {
-    background-color: rgba(93, 93, 218, 0.25);
+    background-color: rgba(141, 141, 245, 0.397);
 }
