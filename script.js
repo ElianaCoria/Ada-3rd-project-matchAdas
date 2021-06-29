@@ -153,7 +153,7 @@ const cellClick = (event) =>{
         (currentSelectX == newPositionX && currentSelectY == newPositionY + 1) ||
         (currentSelectX == newPositionX - 1 && currentSelectY == newPositionY) ||
         (currentSelectX == newPositionX + 1 && currentSelectY == newPositionY)){
-        // TODO: add check for blocks. 
+        // TODO: add check for blocks and animations. 
     }else{
         if(currentSellectCell != undefined){
             currentSellectCell.classList.remove('grid-cell-selected');
@@ -164,4 +164,3 @@ const cellClick = (event) =>{
         currentSellectCell = event.target;    
     }
 }
-
