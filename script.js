@@ -84,3 +84,57 @@ const initilizeMatrix = (size) => {
         matrixData.push(row);
     }
 }
+
+// Display Grid game:
+
+const grid = document.getElementById('grid');
+
+const displayGrid = () => {
+    let positionY = 0;
+    const cellWidth = (grid.offsetWidth / matrixData.length);
+    const cellHeight = (grid.offsetHeight / matrixData.length);
+    for(let y = 0; y < matrixData.length; y++){
+        let positionX = 0;
+        for(let x = 0; x < matrixData[y].length; x++){
+            let cellDiv = document.createElement('div');
+            let image=document.createElement("img");
+            image.className = "image-cell";
+            image.style.pointerEvents = 'none';
+            cellDiv.style.width = cellWidth + 'px';
+            cellDiv.style.height = cellHeight + 'px';
+            cellDiv.style.left = positionX + 'px';
+            cellDiv.style.top = positionY + 'px';
+            cellDiv.style.borderRadius = '5px'; 
+            cellDiv.className = 'grid-cell';
+            cellDiv.setAttribute('data-x', x);
+            cellDiv.setAttribute('data-y', y);
+
+            grid.appendChild(cellDiv);
+            cellDiv.appendChild(image);
+            const value = matrixData[y][x]
+            cellDiv.setAttribute('data-value', value);
+            switch(value){
+                case 1:
+                    image.setAttribute("src","./images/asteroide.png");
+                    break;
+                case 2:
+                    image.setAttribute("src","./images/astronauta.png");
+                    break;
+                case 3:
+                    image.setAttribute("src","./images/cohete.png");
+                    break;
+                case 4:
+                    image.setAttribute("src","./images/extraterrestre.png");
+                    break;
+                case 5:
+                    image.setAttribute("src","./images/saturno.png");
+                    break;
+                case 6:
+                    image.setAttribute("src","./images/galaxia.png");
+                    break;           
+            } 
+            positionX += cellWidth;
+        }
+        positionY += cellHeight;
+    }
+};
