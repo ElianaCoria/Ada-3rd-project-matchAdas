@@ -104,12 +104,28 @@ i {
     justify-content: center;
     align-items: center;
     border-radius: 5px;
+    border: 1px transparent;
     padding: 3px;
     cursor: pointer;
+    transform: scale(1);
+    -webkit-transition:all 0.5s ease-out;
+    -moz-transition:all 0.5s ease-out;
+    -o-transition:all 0.5s ease-out;
+    transition:all 0.5s ease-out;
 }
 
 .image-cell{
     width: 100%;
+    transform: scale(1);
+    transition: 0.2s;
+}
+
+.grid-cell-selected{
+    border: 1px solid #fafafa;
+}
+
+.grid-cell-selected .image-cell{
+    transform: scale(1.1);
 }
 
 .time-container{

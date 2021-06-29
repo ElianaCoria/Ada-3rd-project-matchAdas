@@ -108,7 +108,7 @@ const displayGrid = () => {
             cellDiv.className = 'grid-cell';
             cellDiv.setAttribute('data-x', x);
             cellDiv.setAttribute('data-y', y);
-
+            cellDiv.addEventListener('click', cellClick);
             grid.appendChild(cellDiv);
             cellDiv.appendChild(image);
             const value = matrixData[y][x]
@@ -138,3 +138,29 @@ const displayGrid = () => {
         positionY += cellHeight;
     }
 };
+
+// Item onclick event:
+
+let currentSelectX;
+let currentSelectY;
+let currentSellectCell;
+
+const cellClick = (event) =>{
+    const newPositionX = parseInt(event.target.getAttribute('data-x'));
+    const newPositionY = parseInt(event.target.getAttribute('data-y'));
+
+    if((currentSelectX == newPositionX && currentSelectY == newPositionY - 1) || 
+        (currentSelectX == newPositionX && currentSelectY == newPositionY + 1) ||
+        (currentSelectX == newPositionX - 1 && currentSelectY == newPositionY) ||
+        (currentSelectX == newPositionX + 1 && currentSelectY == newPositionY)){
+        // TODO: add check for blocks and animations. 
+    }else{
+        if(currentSellectCell != undefined){
+            currentSellectCell.classList.remove('grid-cell-selected');
+        }
+        event.target.classList.add('grid-cell-selected');
+        currentSelectX = newPositionX;
+        currentSelectY = newPositionY;
+        currentSellectCell = event.target;    
+    }
+}
