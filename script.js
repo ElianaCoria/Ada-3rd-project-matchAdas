@@ -169,13 +169,13 @@ const cellClick = (event) =>{
         toggleCells(currentSellectCell, event.target);
 
         const resultFindMatches = findMatches();
-        if(resultFindMatches.hasBlocks){
-            // borrar las coicidencias
-        }else{
-            setTimeout(() => {
+        setTimeout(() => {
+            if(resultFindMatches.hasBlocks){
+                removeBlocks(resultFindMatches.blocksHorizontal, resultFindMatches.blocksVertical);
+            }else{
                 toggleCells(event.target, currentSellectCell);
-            }, 500)
-        }    
+            }
+        } , 500) 
     } else{
         if(currentSellectCell != undefined){
             currentSellectCell.classList.remove('grid-cell-selected');
@@ -255,4 +255,28 @@ const findMatches = () =>{
     }
     console.log(resultObj);
     return resultObj;
+}
+
+const removeBlocks = (a, b) =>{
+    for(let i = 0; i < grid.childNodes.length; i ++){
+        const cell = grid.childNodes[i];
+        const cellX = cell.getAttribute('data-x');
+        const cellY = cell.getAttribute('data-y');
+        if(a.includes(`${cellY}, ${cellX}`) || b.includes(`${cellY}, ${cellX}`)){
+            cell.style.transform = 'scale(0)';   
+        }
+    }
+
+    setTimeout(() => {
+        for(let i = 0; i < grid.childNodes.length; i ++){
+            const cell = grid.childNodes[i];
+            const cellX = cell.getAttribute('data-x');
+            const cellY = cell.getAttribute('data-y');
+            if(a.includes(`${cellY}, ${cellX}`) || b.includes(`${cellY}, ${cellX}`)){
+                grid.removeChild(cell);
+                matrixData[cellY][cellX] = 0;
+            }
+        }
+        console.log(matrixData);
+    } , 500) 
 }
