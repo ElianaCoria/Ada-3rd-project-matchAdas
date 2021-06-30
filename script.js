@@ -140,27 +140,73 @@ const displayGrid = () => {
 };
 
 // Item onclick event:
-
-let currentSelectX;
-let currentSelectY;
 let currentSellectCell;
 
 const cellClick = (event) =>{
     const newPositionX = parseInt(event.target.getAttribute('data-x'));
     const newPositionY = parseInt(event.target.getAttribute('data-y'));
 
-    if((currentSelectX == newPositionX && currentSelectY == newPositionY - 1) || 
-        (currentSelectX == newPositionX && currentSelectY == newPositionY + 1) ||
-        (currentSelectX == newPositionX - 1 && currentSelectY == newPositionY) ||
-        (currentSelectX == newPositionX + 1 && currentSelectY == newPositionY)){
-        // TODO: add check for blocks and animations. 
-    }else{
+    let currentSelectX;
+    let currentSelectY;
+    
+    if(currentSellectCell!= undefined){
+        currentSelectX = parseInt(currentSellectCell.getAttribute('data-x'));
+        currentSelectY = parseInt(currentSellectCell.getAttribute('data-y'));
+    }
+
+    if((currentSelectX === newPositionX && currentSelectY === newPositionY - 1) || 
+        (currentSelectX === newPositionX && currentSelectY === newPositionY + 1) ||
+        (currentSelectX === newPositionX - 1 && currentSelectY === newPositionY) ||
+        (currentSelectX === newPositionX + 1 && currentSelectY === newPositionY)){
+
+        toggleCells(currentSellectCell, event.target);
+
+        const hayConicidencias = false;
+        if(hayConicidencias){
+            // borrar las coicidencias
+        }else{
+            setTimeout(() => {
+                toggleCells(event.target, currentSellectCell);
+            }, 500)
+        }    
+    } else{
         if(currentSellectCell != undefined){
             currentSellectCell.classList.remove('grid-cell-selected');
         }
         event.target.classList.add('grid-cell-selected');
-        currentSelectX = newPositionX;
-        currentSelectY = newPositionY;
-        currentSellectCell = event.target;    
+        currentSellectCell = event.target;
     }
+}
+
+const toggleCells = (cellA, cellB) =>{
+    const aX = parseInt(cellA.getAttribute('data-x'));
+    const aY = parseInt(cellA.getAttribute('data-y'));
+    const aValue = cellA.getAttribute('data-value');
+    const aLeft = cellA.style.left;
+    const aTop = cellA.style.top;
+
+    const bX = parseInt(cellB.getAttribute('data-x'));
+    const bY = parseInt(cellB.getAttribute('data-y'));
+    const bValue = cellB.getAttribute('data-value');
+    const bLeft = cellB.style.left;
+    const bTop = cellB.style.top;
+
+    cellA.setAttribute('data-x', bX);
+    cellA.setAttribute('data-y', bY);
+    cellA.setAttribute('data-value', bValue);
+    cellA.style.left = bLeft;
+    cellA.style.top = bTop;
+
+    cellB.setAttribute('data-x', aX);
+    cellB.setAttribute('data-y', aY);
+    cellB.setAttribute('data-value', aValue);
+    cellB.style.left = aLeft;
+    cellB.style.top = aTop;
+
+    matrixData[aX][aY] = bValue;
+    matrixData[bX][bY] = aValue;
+}
+
+const findMatches = () =>{
+
 }
