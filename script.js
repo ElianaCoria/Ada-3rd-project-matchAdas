@@ -34,24 +34,30 @@ const showGameDifficultyOptionsAlert = (onSelectLevel) =>{
     swal(configGameOptionsAlert).then(onSelectLevel);
 }
 
-window.addEventListener('load', showWelcomeAlert((level) => {
-    let size;
-    switch (level) {
-        case "easy":
-        size = 9;
-        break;
+// window.addEventListener('load', showWelcomeAlert((level) => {
+//     let size;
+//     switch (level) {
+//         case "easy":
+//         size = 9;
+//         break;
         
-        case "normal":
-        size = 8;
-        break;
+//         case "normal":
+//         size = 8;
+//         break;
     
-        case "difficult":
-        size = 7;
-        break;
-    }
-    initilizeMatrix(size);
+//         case "difficult":
+//         size = 7;
+//         break;
+//     }
+//     initilizeMatrix(size);
+//     displayGrid();
+// }));
+
+window.addEventListener('load', ()=>{
+    initilizeMatrix(8);
     displayGrid();
-}));
+});
+
 
 // Initialize Matrix Game:
 
@@ -139,7 +145,8 @@ const displayGrid = () => {
     }
 };
 
-// Item onclick event:
+// Item onclick event - select and change position item:
+
 let currentSellectCell;
 
 const cellClick = (event) =>{
@@ -161,8 +168,8 @@ const cellClick = (event) =>{
 
         toggleCells(currentSellectCell, event.target);
 
-        const hayConicidencias = false;
-        if(hayConicidencias){
+        const resultFindMatches = findMatches();
+        if(resultFindMatches.hasBlocks){
             // borrar las coicidencias
         }else{
             setTimeout(() => {
@@ -203,10 +210,49 @@ const toggleCells = (cellA, cellB) =>{
     cellB.style.left = aLeft;
     cellB.style.top = aTop;
 
-    matrixData[aX][aY] = bValue;
-    matrixData[bX][bY] = aValue;
+    matrixData[aY][aX] = parseInt(bValue);
+    matrixData[bY][bX] = parseInt(aValue);
+    console.log([aX, aY,aValue])
+    console.log([bX, bY,bValue])
+    console.log(matrixData);
 }
 
-const findMatches = () =>{
+// Find Matches, keep positions and remove blocks:
 
+const findMatches = () =>{
+    console.log(matrixData);
+    let blocksHorizontal = [];
+    let blocksVertical = [];
+
+    for(let i = 0; i < matrixData.length; i ++){
+        for(let j = 0; j < matrixData[i].length; j ++){
+            if(j < matrixData[i].length - 2 && matrixData[i][j] == matrixData[i][j + 1] && matrixData[i][j] == matrixData[i][j +2]){
+                blocksHorizontal.push(`${i}, ${j}`);
+                blocksHorizontal.push(`${i}, ${j + 1}`);
+                blocksHorizontal.push(`${i}, ${j + 2}`);
+            }
+            if(i < matrixData.length - 2 && matrixData[i][j] == matrixData[i + 1][j] && matrixData[i][j] == matrixData[i + 2][j]){
+                blocksVertical.push(`${i}, ${j}`);
+                blocksVertical.push(`${i + 1}, ${j}`);
+                blocksVertical.push(`${i + 2}, ${j}`);
+            }
+
+        }
+    }
+    const blocksHorizontalFilter = blocksHorizontal.filter(function (value, index){
+        return blocksHorizontal.indexOf(value) == index;
+    })
+    console.log(blocksHorizontalFilter);
+
+    const blocksVerticalFilter = blocksVertical.filter(function (value, index){
+        return blocksVertical.indexOf(value) == index;
+    })
+    const hasBlocks = blocksHorizontalFilter.length > 0 || blocksVerticalFilter.length > 0;
+    const resultObj = {
+        hasBlocks: hasBlocks, 
+        blocksHorizontal: blocksHorizontalFilter, 
+        blocksVertical: blocksVerticalFilter
+    }
+    console.log(resultObj);
+    return resultObj;
 }
