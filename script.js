@@ -34,27 +34,27 @@ const showGameDifficultyOptionsAlert = (onSelectLevel) =>{
     swal(configGameOptionsAlert).then(onSelectLevel);
 }
 
-// window.addEventListener('load', showWelcomeAlert((level) => {
-//     let size;
-//     switch (level) {
-//         case "easy":
-//         size = 9;
-//         break;
+window.addEventListener('load', showWelcomeAlert((level) => {
+    let size;
+    switch (level) {
+        case "easy":
+        size = 9;
+        break;
         
-//         case "normal":
-//         size = 8;
-//         break;
+        case "normal":
+        size = 8;
+        break;
     
-//         case "difficult":
-//         size = 7;
-//         break;
-//     }
-//     initilizeMatrix(size);
-//     displayGrid();
-// }));
+        case "difficult":
+        size = 7;
+        break;
+    }
+    initilizeMatrix(size);
+    displayGrid();
+}));
 
 window.addEventListener('load', ()=>{
-    initilizeMatrix(8);
+    initilizeMatrix(size);
     displayGrid();
 });
 
@@ -171,7 +171,7 @@ const cellClick = (event) =>{
         const resultFindMatches = findMatches();
         setTimeout(() => {
             if(resultFindMatches.hasBlocks){
-                removeBlocks(resultFindMatches.blocksHorizontal, resultFindMatches.blocksVertical);
+                removeBlocks(resultFindMatches);
             }else{
                 toggleCells(event.target, currentSellectCell);
             }
@@ -212,15 +212,11 @@ const toggleCells = (cellA, cellB) =>{
 
     matrixData[aY][aX] = parseInt(bValue);
     matrixData[bY][bX] = parseInt(aValue);
-    console.log([aX, aY,aValue])
-    console.log([bX, bY,bValue])
-    console.log(matrixData);
 }
 
 // Find Matches, keep positions and remove blocks:
 
 const findMatches = () =>{
-    console.log(matrixData);
     let blocksHorizontal = [];
     let blocksVertical = [];
 
@@ -236,13 +232,11 @@ const findMatches = () =>{
                 blocksVertical.push(`${i + 1}, ${j}`);
                 blocksVertical.push(`${i + 2}, ${j}`);
             }
-
         }
     }
     const blocksHorizontalFilter = blocksHorizontal.filter(function (value, index){
         return blocksHorizontal.indexOf(value) == index;
     })
-    console.log(blocksHorizontalFilter);
 
     const blocksVerticalFilter = blocksVertical.filter(function (value, index){
         return blocksVertical.indexOf(value) == index;
@@ -253,30 +247,30 @@ const findMatches = () =>{
         blocksHorizontal: blocksHorizontalFilter, 
         blocksVertical: blocksVerticalFilter
     }
-    console.log(resultObj);
     return resultObj;
 }
 
-const removeBlocks = (a, b) =>{
+const removeBlocks = (findBlocks) =>{
+    let cellsToRemove = [];
     for(let i = 0; i < grid.childNodes.length; i ++){
         const cell = grid.childNodes[i];
         const cellX = cell.getAttribute('data-x');
         const cellY = cell.getAttribute('data-y');
-        if(a.includes(`${cellY}, ${cellX}`) || b.includes(`${cellY}, ${cellX}`)){
-            cell.style.transform = 'scale(0)';   
+        if(findBlocks.blocksHorizontal.includes(`${cellY}, ${cellX}`) || findBlocks.blocksVertical.includes(`${cellY}, ${cellX}`)){
+            cell.style.transform = 'scale(0)';  
+            cellsToRemove.push(cell); 
         }
     }
 
     setTimeout(() => {
-        for(let i = 0; i < grid.childNodes.length; i ++){
-            const cell = grid.childNodes[i];
+        for(let i = 0; i < cellsToRemove.length; i ++){
+            const cell = cellsToRemove[i];
             const cellX = cell.getAttribute('data-x');
             const cellY = cell.getAttribute('data-y');
-            if(a.includes(`${cellY}, ${cellX}`) || b.includes(`${cellY}, ${cellX}`)){
-                grid.removeChild(cell);
-                matrixData[cellY][cellX] = 0;
-            }
+            grid.removeChild(cell);
+            matrixData[cellY][cellX] = 'X';
         }
-        console.log(matrixData);
+    // TODO: here call moveCellsDown
+
     } , 500) 
 }
