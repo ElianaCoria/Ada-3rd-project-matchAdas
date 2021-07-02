@@ -53,6 +53,12 @@ window.addEventListener('load', showWelcomeAlert((level) => {
     displayGrid();
 }));
 
+window.addEventListener('load', ()=>{
+    initilizeMatrix(size);
+    displayGrid();
+});
+
+
 // Initialize Matrix Game:
 
 const matrixData = [];
@@ -139,7 +145,8 @@ const displayGrid = () => {
     }
 };
 
-// Item onclick event:
+// Item onclick event - select and change position item:
+
 let currentSellectCell;
 
 const cellClick = (event) =>{
@@ -161,14 +168,14 @@ const cellClick = (event) =>{
 
         toggleCells(currentSellectCell, event.target);
 
-        const hayConicidencias = false;
-        if(hayConicidencias){
-            // borrar las coicidencias
-        }else{
-            setTimeout(() => {
+        const resultFindMatches = findMatches();
+        setTimeout(() => {
+            if(resultFindMatches.hasBlocks){
+                removeBlocks(resultFindMatches);
+            }else{
                 toggleCells(event.target, currentSellectCell);
-            }, 500)
-        }    
+            }
+        } , 500) 
     } else{
         if(currentSellectCell != undefined){
             currentSellectCell.classList.remove('grid-cell-selected');
@@ -203,10 +210,67 @@ const toggleCells = (cellA, cellB) =>{
     cellB.style.left = aLeft;
     cellB.style.top = aTop;
 
-    matrixData[aX][aY] = bValue;
-    matrixData[bX][bY] = aValue;
+    matrixData[aY][aX] = parseInt(bValue);
+    matrixData[bY][bX] = parseInt(aValue);
 }
 
-const findMatches = () =>{
+// Find Matches, keep positions and remove blocks:
 
+const findMatches = () =>{
+    let blocksHorizontal = [];
+    let blocksVertical = [];
+
+    for(let i = 0; i < matrixData.length; i ++){
+        for(let j = 0; j < matrixData[i].length; j ++){
+            if(j < matrixData[i].length - 2 && matrixData[i][j] == matrixData[i][j + 1] && matrixData[i][j] == matrixData[i][j +2]){
+                blocksHorizontal.push(`${i}, ${j}`);
+                blocksHorizontal.push(`${i}, ${j + 1}`);
+                blocksHorizontal.push(`${i}, ${j + 2}`);
+            }
+            if(i < matrixData.length - 2 && matrixData[i][j] == matrixData[i + 1][j] && matrixData[i][j] == matrixData[i + 2][j]){
+                blocksVertical.push(`${i}, ${j}`);
+                blocksVertical.push(`${i + 1}, ${j}`);
+                blocksVertical.push(`${i + 2}, ${j}`);
+            }
+        }
+    }
+    const blocksHorizontalFilter = blocksHorizontal.filter(function (value, index){
+        return blocksHorizontal.indexOf(value) == index;
+    })
+
+    const blocksVerticalFilter = blocksVertical.filter(function (value, index){
+        return blocksVertical.indexOf(value) == index;
+    })
+    const hasBlocks = blocksHorizontalFilter.length > 0 || blocksVerticalFilter.length > 0;
+    const resultObj = {
+        hasBlocks: hasBlocks, 
+        blocksHorizontal: blocksHorizontalFilter, 
+        blocksVertical: blocksVerticalFilter
+    }
+    return resultObj;
+}
+
+const removeBlocks = (findBlocks) =>{
+    let cellsToRemove = [];
+    for(let i = 0; i < grid.childNodes.length; i ++){
+        const cell = grid.childNodes[i];
+        const cellX = cell.getAttribute('data-x');
+        const cellY = cell.getAttribute('data-y');
+        if(findBlocks.blocksHorizontal.includes(`${cellY}, ${cellX}`) || findBlocks.blocksVertical.includes(`${cellY}, ${cellX}`)){
+            cell.style.transform = 'scale(0)';  
+            cellsToRemove.push(cell); 
+        }
+    }
+
+    setTimeout(() => {
+        for(let i = 0; i < cellsToRemove.length; i ++){
+            const cell = cellsToRemove[i];
+            const cellX = cell.getAttribute('data-x');
+            const cellY = cell.getAttribute('data-y');
+            grid.removeChild(cell);
+            matrixData[cellY][cellX] = 'X';
+        }
+    // TODO: here call moveCellsDown
+
+    } , 500) 
 }
