@@ -53,10 +53,10 @@ window.addEventListener('load', showWelcomeAlert((level) => {
     displayGrid();
 }));
 
-window.addEventListener('load', ()=>{
-    initilizeMatrix(size);
-    displayGrid();
-});
+// window.addEventListener('load', ()=>{
+//     initilizeMatrix(8);
+//     displayGrid();
+// });
 
 
 // Initialize Matrix Game:
@@ -156,7 +156,7 @@ const cellClick = (event) =>{
     let currentSelectX;
     let currentSelectY;
     
-    if(currentSellectCell!= undefined){
+    if(currentSellectCell != undefined){
         currentSelectX = parseInt(currentSellectCell.getAttribute('data-x'));
         currentSelectY = parseInt(currentSellectCell.getAttribute('data-y'));
     }
@@ -268,9 +268,41 @@ const removeBlocks = (findBlocks) =>{
             const cellX = cell.getAttribute('data-x');
             const cellY = cell.getAttribute('data-y');
             grid.removeChild(cell);
+            console.log(cell);
             matrixData[cellY][cellX] = 'X';
         }
-    // TODO: here call moveCellsDown
-
+        moveCellsDown();
     } , 500) 
+}
+
+// Move cells down:
+
+const moveCellsDown = () =>{
+    
+    for(let i = 0; i < matrixData[0].length; i ++){
+        let increaseX = 0;
+        for(let j = matrixData.length - 1; j >= 0; j--){
+            if(matrixData[j][i] === 'X'){
+                increaseX ++;
+            } else if(increaseX > 0){
+                matrixData[j + increaseX][i] = matrixData[j][i];
+                matrixData[j][i] = 'X';
+                let cell = getCellByCordinate(i, j);
+                const top = cell.offsetHeight * (j + increaseX);
+                cell.style.top = top + 'px';
+                cell.setAttribute('data-y', j + increaseX);
+            }
+        }
+    }
+    console.log(matrixData);
+}
+
+const getCellByCordinate = (x, y) => {
+    for(const cell of  grid.childNodes){
+        const cellX = parseInt(cell.getAttribute('data-x'));
+        const cellY = parseInt(cell.getAttribute('data-y'));
+        if(cellX === x && cellY === y){
+            return cell;
+        }
+    }
 }
