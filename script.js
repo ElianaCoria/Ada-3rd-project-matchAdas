@@ -94,54 +94,58 @@ const initilizeMatrix = (size) => {
 // Display Grid game:
 
 const grid = document.getElementById('grid');
+let cellWidth;
+let cellHeight;
 
 const displayGrid = () => {
-    let positionY = 0;
-    const cellWidth = (grid.offsetWidth / matrixData.length);
-    const cellHeight = (grid.offsetHeight / matrixData.length);
+    // let positionY = 0;
+    cellWidth = (grid.offsetWidth / matrixData.length);
+    cellHeight = (grid.offsetHeight / matrixData.length);
     for(let y = 0; y < matrixData.length; y++){
-        let positionX = 0;
+        // let positionX = 0;
         for(let x = 0; x < matrixData[y].length; x++){
-            let cellDiv = document.createElement('div');
-            let image=document.createElement("img");
-            image.className = "image-cell";
-            image.style.pointerEvents = 'none';
-            cellDiv.style.width = cellWidth + 'px';
-            cellDiv.style.height = cellHeight + 'px';
-            cellDiv.style.left = positionX + 'px';
-            cellDiv.style.top = positionY + 'px';
-            cellDiv.style.borderRadius = '5px'; 
-            cellDiv.className = 'grid-cell';
-            cellDiv.setAttribute('data-x', x);
-            cellDiv.setAttribute('data-y', y);
-            cellDiv.addEventListener('click', cellClick);
-            grid.appendChild(cellDiv);
-            cellDiv.appendChild(image);
-            const value = matrixData[y][x]
-            cellDiv.setAttribute('data-value', value);
-            switch(value){
-                case 1:
-                    image.setAttribute("src","./images/asteroide.png");
-                    break;
-                case 2:
-                    image.setAttribute("src","./images/astronauta.png");
-                    break;
-                case 3:
-                    image.setAttribute("src","./images/cohete.png");
-                    break;
-                case 4:
-                    image.setAttribute("src","./images/extraterrestre.png");
-                    break;
-                case 5:
-                    image.setAttribute("src","./images/saturno.png");
-                    break;
-                case 6:
-                    image.setAttribute("src","./images/galaxia.png");
-                    break;           
-            } 
-            positionX += cellWidth;
+            // let cellDiv = document.createElement('div');
+            // let image=document.createElement("img");
+            // image.className = "image-cell";
+            // image.style.pointerEvents = 'none';
+            // cellDiv.style.width = cellWidth + 'px';
+            // cellDiv.style.height = cellHeight + 'px';
+            // cellDiv.style.left = positionX + 'px';
+            // cellDiv.style.top = positionY + 'px';
+            // cellDiv.style.borderRadius = '5px'; 
+            // cellDiv.className = 'grid-cell';
+            // cellDiv.setAttribute('data-x', x);
+            // cellDiv.setAttribute('data-y', y);
+            // cellDiv.addEventListener('click', cellClick);
+            // grid.appendChild(cellDiv);
+            // cellDiv.appendChild(image);
+            // const value = matrixData[y][x]
+            // cellDiv.setAttribute('data-value', value);
+            // switch(value){
+            //     case 1:
+            //         image.setAttribute("src","./images/asteroide.png");
+            //         break;
+            //     case 2:
+            //         image.setAttribute("src","./images/astronauta.png");
+            //         break;
+            //     case 3:
+            //         image.setAttribute("src","./images/cohete.png");
+            //         break;
+            //     case 4:
+            //         image.setAttribute("src","./images/extraterrestre.png");
+            //         break;
+            //     case 5:
+            //         image.setAttribute("src","./images/saturno.png");
+            //         break;
+            //     case 6:
+            //         image.setAttribute("src","./images/galaxia.png");
+            //         break;           
+            // } 
+            // positionX += cellWidth;
+            const value = matrixData[y][x];
+            grid.appendChild(getNewCell(x, y, value));
         }
-        positionY += cellHeight;
+        // positionY += cellHeight;
     }
 };
 
@@ -272,7 +276,7 @@ const removeBlocks = (findBlocks) =>{
             matrixData[cellY][cellX] = 'X';
         }
         moveCellsDown();
-    } , 500) 
+    } , 500);
 }
 
 // Move cells down:
@@ -288,15 +292,17 @@ const moveCellsDown = () =>{
                 matrixData[j + increaseX][i] = matrixData[j][i];
                 matrixData[j][i] = 'X';
                 let cell = getCellByCordinate(i, j);
-                const top = cell.offsetHeight * (j + increaseX);
+                const top = cellHeight * (j + increaseX);
                 cell.style.top = top + 'px';
                 cell.setAttribute('data-y', j + increaseX);
             }
         }
         console.log(matrixData);
     }
+    setTimeout(() =>{
+        generateNewRandomCells();
+    }, 500);
     
-    generateRandomItems();
 }
 
 const getCellByCordinate = (x, y) => {
@@ -309,13 +315,66 @@ const getCellByCordinate = (x, y) => {
     }
 }
 
-const generateRandomItems = () =>{
+const generateNewRandomCells = () =>{
+    let newCells = [];
+
     for(let i = 0; i < matrixData[0].length; i++){
         for(let j = 0; j < matrixData.length - 1; j ++){
             if(matrixData[j][i] === 'X'){
                 matrixData[j][i] = Math.floor(Math.random() * (7 - 1)) + 1;
-                
+                let newCell = getNewCell(i, j, matrixData[j][i]);
+                newCell.style.transform = 'scale(0)';
+                grid.appendChild(newCell);
+                newCells.push(newCell);
             }
         }
     }
+	setTimeout(() => {
+        for(let cell of newCells){
+            cell.style.transform = 'scale(1)';
+        }
+    }, 5 );
+    
+}
+
+const getNewCell = (x, y, value) =>{
+    let cellDiv = document.createElement('div');
+    cellDiv.style.width = cellWidth + 'px';
+    cellDiv.style.height = cellHeight + 'px';
+    cellDiv.style.left = (x * cellWidth) + 'px';
+    cellDiv.style.top = (y * cellHeight) + 'px';
+    cellDiv.style.borderRadius = '5px'; 
+    cellDiv.className = 'grid-cell';
+    cellDiv.setAttribute('data-x', x);
+    cellDiv.setAttribute('data-y', y);
+    cellDiv.addEventListener('click', cellClick);
+
+    cellDiv.setAttribute('data-value', value);
+    let image=document.createElement("img");
+    image.className = "image-cell";
+    cellDiv.appendChild(image);
+    image.style.pointerEvents = 'none';
+            
+    switch(value){
+        case 1:
+            image.setAttribute("src","./images/asteroide.png");
+            break;
+        case 2:
+            image.setAttribute("src","./images/astronauta.png");
+            break;
+        case 3:
+            image.setAttribute("src","./images/cohete.png");
+            break;
+        case 4:
+            image.setAttribute("src","./images/extraterrestre.png");
+            break;
+        case 5:
+            image.setAttribute("src","./images/saturno.png");
+            break;
+        case 6:
+            image.setAttribute("src","./images/galaxia.png");
+            break;           
+    } 
+    
+    return cellDiv;
 }
