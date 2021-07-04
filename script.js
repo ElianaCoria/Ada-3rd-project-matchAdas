@@ -131,6 +131,8 @@ const cellClick = (event) =>{
         setTimeout(() => {
             if(resultFindMatches.hasBlocks){
                 removeBlocks(resultFindMatches);
+                addCombo();
+                addScore(resultFindMatches);
             }else{
                 toggleCells(event.target, currentSellectCell);
             }
@@ -224,7 +226,6 @@ const removeBlocks = (findBlocks) =>{
             const cellX = cell.getAttribute('data-x');
             const cellY = cell.getAttribute('data-y');
             grid.removeChild(cell);
-            console.log(cell);
             matrixData[cellY][cellX] = 'X';
         }
         moveCellsDown();
@@ -242,7 +243,7 @@ const moveCellsDown = () =>{
             } else if(increaseX > 0){
                 matrixData[j + increaseX][i] = matrixData[j][i];
                 matrixData[j][i] = 'X';
-                let cell = getCellByCordinate(i, j);
+                let cell = findCellByCordinate(i, j);
                 const top = cellHeight * (j + increaseX);
                 cell.style.top = top + 'px';
                 cell.setAttribute('data-y', j + increaseX);
@@ -254,7 +255,7 @@ const moveCellsDown = () =>{
     }, 500); 
 }
 
-const getCellByCordinate = (x, y) => {
+const findCellByCordinate = (x, y) => {
     for(const cell of  grid.childNodes){
         const cellX = parseInt(cell.getAttribute('data-x'));
         const cellY = parseInt(cell.getAttribute('data-y'));
@@ -263,6 +264,8 @@ const getCellByCordinate = (x, y) => {
         }
     }
 }
+
+// Fill with new cells random:
 
 const generateNewRandomCells = () =>{
     let newCells = [];
@@ -274,6 +277,7 @@ const generateNewRandomCells = () =>{
                 newCell.style.transform = 'scale(0)';
                 grid.appendChild(newCell);
                 newCells.push(newCell);
+                // scoreCounter();
             }
         }
     }
@@ -320,4 +324,24 @@ const getNewCell = (x, y, value) =>{
             break;           
     } 
     return cellDiv;
+}
+
+// Score:
+
+let score = 0;
+
+const addScore = (blocks) =>{
+    score += (blocks.blocksHorizontal.length + blocks.blocksVertical.length) * (100 * combo);
+    const displayScore = document.getElementById('score');
+    displayScore.innerHTML = score;
+}
+
+// Combo:
+
+let combo = 1;
+
+const addCombo = () =>{
+    combo += 1;
+    const displayCombo = document.getElementById('combo');
+    displayCombo.innerHTML = combo;
 }
