@@ -1,3 +1,7 @@
+// Configurations:
+
+const animationMilliseconds = 500;
+
 // Game Initialization Settings:   
 
 const showWelcomeAlert = (onSelectLevel) =>{
@@ -34,30 +38,29 @@ const showGameDifficultyOptionsAlert = (onSelectLevel) =>{
     swal(configGameOptionsAlert).then(onSelectLevel);
 }
 
-window.addEventListener('load', showWelcomeAlert((level) => {
-    let size;
-    switch (level) {
-        case "easy":
-        size = 9;
-        break;
+// window.addEventListener('load', showWelcomeAlert((level) => {
+//     let size;
+//     switch (level) {
+//         case "easy":
+//         size = 9;
+//         break;
         
-        case "normal":
-        size = 8;
-        break;
+//         case "normal":
+//         size = 8;
+//         break;
     
-        case "difficult":
-        size = 7;
-        break;
-    }
-    initilizeMatrix(size);
-    displayGrid();
-}));
-
-// window.addEventListener('load', ()=>{
-//     initilizeMatrix(8);
+//         case "difficult":
+//         size = 7;
+//         break;
+//     }
+//     initilizeMatrix(size);
 //     displayGrid();
-// });
+// }));
 
+window.addEventListener('load', ()=>{
+    initilizeMatrix(8);
+    displayGrid();
+});
 
 // Initialize Matrix Game:
 
@@ -76,7 +79,6 @@ const initilizeMatrix = (size) => {
                 duplicateValueY = matrixData[i - 1][j];
             }
             let temporaryArray = [];
-
             for(let k = 1; k <= 6; k++){
                 if(k !== duplicateValueX && k !== duplicateValueY){
                     temporaryArray.push(k);
@@ -85,7 +87,6 @@ const initilizeMatrix = (size) => {
             const positionRandom = Math.floor(Math.random() * (temporaryArray.length - 0));
             const cell = temporaryArray[positionRandom];
             row.push(cell);
-
         }
         matrixData.push(row);
     }
@@ -94,54 +95,17 @@ const initilizeMatrix = (size) => {
 // Display Grid game:
 
 const grid = document.getElementById('grid');
+let cellWidth;
+let cellHeight;
 
 const displayGrid = () => {
-    let positionY = 0;
-    const cellWidth = (grid.offsetWidth / matrixData.length);
-    const cellHeight = (grid.offsetHeight / matrixData.length);
+    cellWidth = (grid.offsetWidth / matrixData.length);
+    cellHeight = (grid.offsetHeight / matrixData.length);
     for(let y = 0; y < matrixData.length; y++){
-        let positionX = 0;
         for(let x = 0; x < matrixData[y].length; x++){
-            let cellDiv = document.createElement('div');
-            let image=document.createElement("img");
-            image.className = "image-cell";
-            image.style.pointerEvents = 'none';
-            cellDiv.style.width = cellWidth + 'px';
-            cellDiv.style.height = cellHeight + 'px';
-            cellDiv.style.left = positionX + 'px';
-            cellDiv.style.top = positionY + 'px';
-            cellDiv.style.borderRadius = '5px'; 
-            cellDiv.className = 'grid-cell';
-            cellDiv.setAttribute('data-x', x);
-            cellDiv.setAttribute('data-y', y);
-            cellDiv.addEventListener('click', cellClick);
-            grid.appendChild(cellDiv);
-            cellDiv.appendChild(image);
-            const value = matrixData[y][x]
-            cellDiv.setAttribute('data-value', value);
-            switch(value){
-                case 1:
-                    image.setAttribute("src","./images/asteroide.png");
-                    break;
-                case 2:
-                    image.setAttribute("src","./images/astronauta.png");
-                    break;
-                case 3:
-                    image.setAttribute("src","./images/cohete.png");
-                    break;
-                case 4:
-                    image.setAttribute("src","./images/extraterrestre.png");
-                    break;
-                case 5:
-                    image.setAttribute("src","./images/saturno.png");
-                    break;
-                case 6:
-                    image.setAttribute("src","./images/galaxia.png");
-                    break;           
-            } 
-            positionX += cellWidth;
+            const value = matrixData[y][x];
+            grid.appendChild(getNewCell(x, y, value));
         }
-        positionY += cellHeight;
     }
 };
 
@@ -152,22 +116,17 @@ let currentSellectCell;
 const cellClick = (event) =>{
     const newPositionX = parseInt(event.target.getAttribute('data-x'));
     const newPositionY = parseInt(event.target.getAttribute('data-y'));
-
     let currentSelectX;
     let currentSelectY;
-    
     if(currentSellectCell != undefined){
         currentSelectX = parseInt(currentSellectCell.getAttribute('data-x'));
         currentSelectY = parseInt(currentSellectCell.getAttribute('data-y'));
     }
-
     if((currentSelectX === newPositionX && currentSelectY === newPositionY - 1) || 
         (currentSelectX === newPositionX && currentSelectY === newPositionY + 1) ||
         (currentSelectX === newPositionX - 1 && currentSelectY === newPositionY) ||
         (currentSelectX === newPositionX + 1 && currentSelectY === newPositionY)){
-
         toggleCells(currentSellectCell, event.target);
-
         const resultFindMatches = findMatches();
         setTimeout(() => {
             if(resultFindMatches.hasBlocks){
@@ -219,7 +178,6 @@ const toggleCells = (cellA, cellB) =>{
 const findMatches = () =>{
     let blocksHorizontal = [];
     let blocksVertical = [];
-
     for(let i = 0; i < matrixData.length; i ++){
         for(let j = 0; j < matrixData[i].length; j ++){
             if(j < matrixData[i].length - 2 && matrixData[i][j] == matrixData[i][j + 1] && matrixData[i][j] == matrixData[i][j +2]){
@@ -237,7 +195,6 @@ const findMatches = () =>{
     const blocksHorizontalFilter = blocksHorizontal.filter(function (value, index){
         return blocksHorizontal.indexOf(value) == index;
     })
-
     const blocksVerticalFilter = blocksVertical.filter(function (value, index){
         return blocksVertical.indexOf(value) == index;
     })
@@ -261,7 +218,6 @@ const removeBlocks = (findBlocks) =>{
             cellsToRemove.push(cell); 
         }
     }
-
     setTimeout(() => {
         for(let i = 0; i < cellsToRemove.length; i ++){
             const cell = cellsToRemove[i];
@@ -272,13 +228,12 @@ const removeBlocks = (findBlocks) =>{
             matrixData[cellY][cellX] = 'X';
         }
         moveCellsDown();
-    } , 500) 
+    }, 500);
 }
 
 // Move cells down:
 
 const moveCellsDown = () =>{
-    
     for(let i = 0; i < matrixData[0].length; i ++){
         let increaseX = 0;
         for(let j = matrixData.length - 1; j >= 0; j--){
@@ -288,13 +243,15 @@ const moveCellsDown = () =>{
                 matrixData[j + increaseX][i] = matrixData[j][i];
                 matrixData[j][i] = 'X';
                 let cell = getCellByCordinate(i, j);
-                const top = cell.offsetHeight * (j + increaseX);
+                const top = cellHeight * (j + increaseX);
                 cell.style.top = top + 'px';
                 cell.setAttribute('data-y', j + increaseX);
             }
         }
     }
-    console.log(matrixData);
+    setTimeout(() =>{
+        generateNewRandomCells();
+    }, 500); 
 }
 
 const getCellByCordinate = (x, y) => {
@@ -305,4 +262,62 @@ const getCellByCordinate = (x, y) => {
             return cell;
         }
     }
+}
+
+const generateNewRandomCells = () =>{
+    let newCells = [];
+    for(let i = 0; i < matrixData[0].length; i++){
+        for(let j = 0; j < matrixData.length - 1; j ++){
+            if(matrixData[j][i] === 'X'){
+                matrixData[j][i] = Math.floor(Math.random() * (7 - 1)) + 1;
+                let newCell = getNewCell(i, j, matrixData[j][i]);
+                newCell.style.transform = 'scale(0)';
+                grid.appendChild(newCell);
+                newCells.push(newCell);
+            }
+        }
+    }
+	setTimeout(() => {
+        for(let cell of newCells){
+            cell.style.transform = 'scale(1)';
+        }
+    }, 5 );
+}
+
+const getNewCell = (x, y, value) =>{
+    let cellDiv = document.createElement('div');
+    cellDiv.style.width = cellWidth + 'px';
+    cellDiv.style.height = cellHeight + 'px';
+    cellDiv.style.left = (x * cellWidth) + 'px';
+    cellDiv.style.top = (y * cellHeight) + 'px'; 
+    cellDiv.className = 'grid-cell';
+    cellDiv.setAttribute('data-x', x);
+    cellDiv.setAttribute('data-y', y);
+    cellDiv.setAttribute('data-value', value);
+    cellDiv.addEventListener('click', cellClick);
+    let image = document.createElement("img");
+    cellDiv.appendChild(image);
+    image.className = "image-cell";
+    image.style.pointerEvents = 'none';      
+    switch(value){
+        case 1:
+            image.setAttribute("src","./images/asteroide.png");
+            break;
+        case 2:
+            image.setAttribute("src","./images/astronauta.png");
+            break;
+        case 3:
+            image.setAttribute("src","./images/cohete.png");
+            break;
+        case 4:
+            image.setAttribute("src","./images/extraterrestre.png");
+            break;
+        case 5:
+            image.setAttribute("src","./images/saturno.png");
+            break;
+        case 6:
+            image.setAttribute("src","./images/galaxia.png");
+            break;           
+    } 
+    return cellDiv;
 }
