@@ -34,29 +34,29 @@ const showGameDifficultyOptionsAlert = (onSelectLevel) =>{
     swal(configGameOptionsAlert).then(onSelectLevel);
 }
 
-window.addEventListener('load', showWelcomeAlert((level) => {
-    let size;
-    switch (level) {
-        case "easy":
-        size = 9;
-        break;
+// window.addEventListener('load', showWelcomeAlert((level) => {
+//     let size;
+//     switch (level) {
+//         case "easy":
+//         size = 9;
+//         break;
         
-        case "normal":
-        size = 8;
-        break;
+//         case "normal":
+//         size = 8;
+//         break;
     
-        case "difficult":
-        size = 7;
-        break;
-    }
-    initilizeMatrix(size);
-    displayGrid();
-}));
-
-// window.addEventListener('load', ()=>{
-//     initilizeMatrix(8);
+//         case "difficult":
+//         size = 7;
+//         break;
+//     }
+//     initilizeMatrix(size);
 //     displayGrid();
-// });
+// }));
+
+window.addEventListener('load', ()=>{
+    initilizeMatrix(8);
+    displayGrid();
+});
 
 
 // Initialize Matrix Game:
@@ -293,8 +293,10 @@ const moveCellsDown = () =>{
                 cell.setAttribute('data-y', j + increaseX);
             }
         }
+        console.log(matrixData);
     }
-    console.log(matrixData);
+    
+    generateRandomItems();
 }
 
 const getCellByCordinate = (x, y) => {
@@ -303,6 +305,17 @@ const getCellByCordinate = (x, y) => {
         const cellY = parseInt(cell.getAttribute('data-y'));
         if(cellX === x && cellY === y){
             return cell;
+        }
+    }
+}
+
+const generateRandomItems = () =>{
+    for(let i = 0; i < matrixData[0].length; i++){
+        for(let j = 0; j < matrixData.length - 1; j ++){
+            if(matrixData[j][i] === 'X'){
+                matrixData[j][i] = Math.floor(Math.random() * (7 - 1)) + 1;
+                
+            }
         }
     }
 }
