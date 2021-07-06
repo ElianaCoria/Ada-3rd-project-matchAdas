@@ -38,29 +38,24 @@ const showGameDifficultyOptionsAlert = (onSelectLevel) =>{
     swal(configGameOptionsAlert).then(onSelectLevel);
 }
 
-// window.addEventListener('load', showWelcomeAlert((level) => {
-//     let size;
-//     switch (level) {
-//         case "easy":
-//         size = 9;
-//         break;
+window.addEventListener('load', showWelcomeAlert((level) => {
+    let size;
+    switch (level) {
+        case "easy":
+        size = 9;
+        break;
         
-//         case "normal":
-//         size = 8;
-//         break;
+        case "normal":
+        size = 8;
+        break;
     
-//         case "difficult":
-//         size = 7;
-//         break;
-//     }
-//     initilizeMatrix(size);
-//     displayGrid();
-// }));
-
-window.addEventListener('load', ()=>{
-    initilizeMatrix(8);
+        case "difficult":
+        size = 7;
+        break;
+    }
+    initilizeMatrix(size);
     displayGrid();
-});
+}));
 
 // Initialize Matrix Game:
 
@@ -130,13 +125,11 @@ const cellClick = (event) =>{
         const resultFindMatches = findMatches();
         setTimeout(() => {
             if(resultFindMatches.hasBlocks){
-                removeBlocks(resultFindMatches);
-                addCombo();
-                addScore(resultFindMatches);
+                searchRecursiveBlocks(resultFindMatches);
             }else{
                 toggleCells(event.target, currentSellectCell);
             }
-        } , 500) 
+        }, animationMilliseconds);
     } else{
         if(currentSellectCell != undefined){
             currentSellectCell.classList.remove('grid-cell-selected');
@@ -183,14 +176,14 @@ const findMatches = () =>{
     for(let i = 0; i < matrixData.length; i ++){
         for(let j = 0; j < matrixData[i].length; j ++){
             if(j < matrixData[i].length - 2 && matrixData[i][j] == matrixData[i][j + 1] && matrixData[i][j] == matrixData[i][j +2]){
-                blocksHorizontal.push(`${i}, ${j}`);
-                blocksHorizontal.push(`${i}, ${j + 1}`);
-                blocksHorizontal.push(`${i}, ${j + 2}`);
+                blocksHorizontal.push(`${i},${j}`);
+                blocksHorizontal.push(`${i},${j + 1}`);
+                blocksHorizontal.push(`${i},${j + 2}`);
             }
             if(i < matrixData.length - 2 && matrixData[i][j] == matrixData[i + 1][j] && matrixData[i][j] == matrixData[i + 2][j]){
-                blocksVertical.push(`${i}, ${j}`);
-                blocksVertical.push(`${i + 1}, ${j}`);
-                blocksVertical.push(`${i + 2}, ${j}`);
+                blocksVertical.push(`${i},${j}`);
+                blocksVertical.push(`${i + 1},${j}`);
+                blocksVertical.push(`${i + 2},${j}`);
             }
         }
     }
@@ -209,13 +202,13 @@ const findMatches = () =>{
     return resultObj;
 }
 
-const removeBlocks = (findBlocks) =>{
+const removeBlocks = (findBlocks, onCompleteRemoveBlocks) =>{
     let cellsToRemove = [];
     for(let i = 0; i < grid.childNodes.length; i ++){
         const cell = grid.childNodes[i];
         const cellX = cell.getAttribute('data-x');
         const cellY = cell.getAttribute('data-y');
-        if(findBlocks.blocksHorizontal.includes(`${cellY}, ${cellX}`) || findBlocks.blocksVertical.includes(`${cellY}, ${cellX}`)){
+        if(findBlocks.blocksHorizontal.includes(`${cellY},${cellX}`) || findBlocks.blocksVertical.includes(`${cellY},${cellX}`)){
             cell.style.transform = 'scale(0)';  
             cellsToRemove.push(cell); 
         }
@@ -228,13 +221,13 @@ const removeBlocks = (findBlocks) =>{
             grid.removeChild(cell);
             matrixData[cellY][cellX] = 'X';
         }
-        moveCellsDown();
-    }, 500);
+        moveCellsDown(onCompleteRemoveBlocks);
+    }, animationMilliseconds);
 }
 
 // Move cells down:
 
-const moveCellsDown = () =>{
+const moveCellsDown = (onCompleteMoveCellsDown) =>{
     for(let i = 0; i < matrixData[0].length; i ++){
         let increaseX = 0;
         for(let j = matrixData.length - 1; j >= 0; j--){
@@ -251,15 +244,17 @@ const moveCellsDown = () =>{
         }
     }
     setTimeout(() =>{
-        generateNewRandomCells();
-    }, 500); 
+        generateNewRandomCells(() => {
+            onCompleteMoveCellsDown();
+        });
+    }, animationMilliseconds); 
 }
 
 const findCellByCordinate = (x, y) => {
     for(const cell of  grid.childNodes){
         const cellX = parseInt(cell.getAttribute('data-x'));
         const cellY = parseInt(cell.getAttribute('data-y'));
-        if(cellX === x && cellY === y){
+        if(cellX == x && cellY == y){
             return cell;
         }
     }
@@ -267,17 +262,16 @@ const findCellByCordinate = (x, y) => {
 
 // Fill with new cells random:
 
-const generateNewRandomCells = () =>{
+const generateNewRandomCells = (onComplete) =>{
     let newCells = [];
     for(let i = 0; i < matrixData[0].length; i++){
-        for(let j = 0; j < matrixData.length - 1; j ++){
+        for(let j = 0; j < matrixData.length; j ++){
             if(matrixData[j][i] === 'X'){
                 matrixData[j][i] = Math.floor(Math.random() * (7 - 1)) + 1;
                 let newCell = getNewCell(i, j, matrixData[j][i]);
                 newCell.style.transform = 'scale(0)';
                 grid.appendChild(newCell);
                 newCells.push(newCell);
-                // scoreCounter();
             }
         }
     }
@@ -285,7 +279,8 @@ const generateNewRandomCells = () =>{
         for(let cell of newCells){
             cell.style.transform = 'scale(1)';
         }
-    }, 5 );
+        onComplete();
+    }, animationMilliseconds );
 }
 
 const getNewCell = (x, y, value) =>{
@@ -342,6 +337,26 @@ let combo = 1;
 
 const addCombo = () =>{
     combo += 1;
-    const displayCombo = document.getElementById('combo');
-    displayCombo.innerHTML = combo;
+    document.getElementById('combo').innerHTML = combo;
+}
+
+const resetCombo = () =>{
+    combo = 1;
+    document.getElementById('combo').innerHTML = combo;
+}
+
+// Search recursive blocks:
+
+const searchRecursiveBlocks = (resultFindMatches) => {
+    removeBlocks(resultFindMatches, () => {
+        addCombo();
+        addScore(resultFindMatches);
+        const resultObj = findMatches();
+        if(resultObj.hasBlocks){
+            searchRecursiveBlocks(resultObj);
+        }else{  
+            resetCombo();
+            currentSellectCell = undefined;
+        }
+    });
 }
