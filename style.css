@@ -145,8 +145,8 @@ i {
     box-shadow: 0px 0px 5px 4px #00000021 inset;
 }
 
-.time-remaining{
-    margin-left: 10px;
+#time-remaining{
+    margin-left: 15px;
 }
 
 /* Alerts */

@@ -55,6 +55,7 @@ window.addEventListener('load', showWelcomeAlert((level) => {
     }
     initilizeMatrix(size);
     displayGrid();
+    startCountdown();
 }));
 
 // Initialize Matrix Game:
@@ -359,4 +360,32 @@ const searchRecursiveBlocks = (resultFindMatches) => {
             currentSellectCell = undefined;
         }
     });
+}
+
+// Countdown timer:
+
+let time;
+let processID;
+const startCountdown = () =>{
+    time = 30;
+    continueCountDown();
+}
+
+const continueCountDown = () => {
+    processID = setInterval(() => {
+        const timeRemaining = document.getElementById('time-remaining');
+        if(time >= 10){
+            timeRemaining.innerHTML = `0:${time}`;
+        } else if(time >= 0){
+            timeRemaining.innerHTML = `0:0${time}`;
+        } else{
+            clearInterval(processID);
+                // TODO: show score alert
+        }
+        time --;
+    }, 1000)
+}
+
+const pauseConstdown = () => {
+    clearInterval(processID);
 }
