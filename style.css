@@ -174,14 +174,15 @@ i {
 }
 
 .swal-button {
-    width: 100px;
-    height: 35px;
-    align-self: flex-end;
     background-color: var(--background-color);
 }
 
 .swal-button--dificil:focus{
     box-shadow: none;
+}
+
+.swal-button--cancel {
+    background-color: rgb(221, 217, 217);
 }
 
 .swal-overlay {
