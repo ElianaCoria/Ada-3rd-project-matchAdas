@@ -4,14 +4,14 @@ const animationMilliseconds = 500;
 
 // Game Initialization Settings:   
 
-const showWelcomeAlert = (onSelectLevel) =>{
+const showWelcomeAlert = (onPlayGame) =>{
     const configWelcomeAlert = {title: "!Bienvenida!",
         text: "En matcheADAs tu objetivo es juntar tres o más items del mismo tipo, ya sea en fila o en columna. Para eso, selecciona un item y a continuación un item adyacente para intercambiarlos de lugar. \n \n Si se forma un grupo, esos items se eliminarán y ganarás puntos. ¡Sigue armando grupos de tres o más antes de que se acabe el tiempo! \n \n Controles \n Click izquierdo: selección. \n Enter o espacio: selección. \n Flechas o WASD: movimiento e intercambio." ,
         button: "A Jugar",
         closeOnClickOutside: false,
     }
     swal(configWelcomeAlert).then((valor) => {
-        showGameDifficultyOptionsAlert(onSelectLevel);
+        onPlayGame();
     });
 };
 
@@ -38,7 +38,10 @@ const showGameDifficultyOptionsAlert = (onSelectLevel) =>{
     swal(configGameOptionsAlert).then(onSelectLevel);
 }
 
-window.addEventListener('load', showWelcomeAlert((level) => {
+let currentLevel;
+
+const startGameByLevel = (level) =>{
+    currentLevel = level;
     let size;
     switch (level) {
         case "easy":
@@ -56,13 +59,26 @@ window.addEventListener('load', showWelcomeAlert((level) => {
     initilizeMatrix(size);
     displayGrid();
     startCountdown();
-}));
+    resetCombo();
+    resetScore();
+}
+
+const initializeGame = () =>{
+    showWelcomeAlert(() => {
+        showGameDifficultyOptionsAlert((level) => {
+            startGameByLevel(level);
+        });
+    });
+}
+
+window.addEventListener('load', initializeGame);
 
 // Initialize Matrix Game:
 
-const matrixData = [];
+let matrixData = [];
 
 const initilizeMatrix = (size) => {
+    matrixData = [];
     for(let i = 0; i < size; i ++){
         let row = [];
         for(let j = 0; j < size; j ++){
@@ -95,6 +111,7 @@ let cellWidth;
 let cellHeight;
 
 const displayGrid = () => {
+    grid.innerHTML = '';
     cellWidth = (grid.offsetWidth / matrixData.length);
     cellHeight = (grid.offsetHeight / matrixData.length);
     for(let y = 0; y < matrixData.length; y++){
@@ -332,6 +349,11 @@ const addScore = (blocks) =>{
     displayScore.innerHTML = score;
 }
 
+const resetScore = () =>{
+    score = 0;
+    document.getElementById('score').innerHTML = '0';
+}
+
 // Combo:
 
 let combo = 1;
@@ -380,7 +402,7 @@ const continueCountDown = () => {
             timeRemaining.innerHTML = `0:0${time}`;
         } else{
             clearInterval(processID);
-                // TODO: show score alert
+            showFinalScoreAlert();
         }
         time --;
     }, 1000)
@@ -388,4 +410,69 @@ const continueCountDown = () => {
 
 const pauseConstdown = () => {
     clearInterval(processID);
+}
+
+// Game alerts:
+
+const infoButtonOnClick = () =>{
+    pauseConstdown();
+    showWelcomeAlert(() => {
+        continueCountDown();
+    });
+}
+
+document.getElementById('help-button').addEventListener('click', infoButtonOnClick);
+
+const restartGame = () =>{
+    pauseConstdown();
+    const configRestartAlert = {
+        title: "¿Reiniciar juego?",
+        text: "¡Perderás todo el puntaje acumulado!",
+        buttons: {
+            cancel: "Cancelar",
+            newGame: {
+                text: "Nuevo juego",
+                value: "new-game",
+            },
+        },
+        closeOnClickOutside: false,
+    }
+    swal(configRestartAlert).then((value) => {
+        if(value === "new-game"){
+            showGameDifficultyOptionsAlert((level) => {
+                startGameByLevel(level);
+            });
+       } else {
+            continueCountDown();
+       }
+    });
+}
+
+document.getElementById('restart-button').addEventListener('click', restartGame);
+
+const showFinalScoreAlert = () =>{
+    const configFinalScoreAlert = {title: "¡Juego Terminado!",
+            text: `Puntaje Final: ${score}`,
+            closeOnClickOutside: false,
+            buttons: {
+                newGame: {
+                    text: "Nuevo juego",
+                    value: "new-game"
+                },
+                restart: {
+                    text: "Reiniciar",
+                    value: "restart"
+                }
+            }
+        };
+        
+    swal(configFinalScoreAlert).then((value) =>{
+        if(value === "new-game"){
+            showGameDifficultyOptionsAlert((level) => {
+                startGameByLevel(level);
+            });
+        } else{
+            startGameByLevel(currentLevel);
+        }
+    });
 }
