@@ -1,6 +1,24 @@
 // Configurations:
 
 const animationMilliseconds = 500;
+const maxTime = 30;
+const icons = ["asteroid.png", "astronaut.png", "rocket.png", "alien.png", "saturn.png", "galaxy.png"]
+const grid = document.getElementById('grid');
+
+// Properties
+
+let currentLevel;
+let matrixData = [];
+let cellWidth;
+let cellHeight;
+let currentSellectCell;
+let allowSelection = true;
+let score = 0;
+let combo = 1;
+let time;
+let countdownProcessID;
+let pendingShowFinalScoreAlert = false;
+let searchingRecursive = false;
 
 // Game Initialization Settings:   
 
@@ -38,8 +56,6 @@ const showGameDifficultyOptionsAlert = (onSelectLevel) =>{
     swal(configGameOptionsAlert).then(onSelectLevel);
 }
 
-let currentLevel;
-
 const startGameByLevel = (level) =>{
     currentLevel = level;
     let size;
@@ -72,11 +88,7 @@ const initializeGame = () =>{
     });
 }
 
-window.addEventListener('load', initializeGame);
-
 // Initialize Matrix Game:
-
-let matrixData = [];
 
 const initilizeMatrix = (size) => {
     matrixData = [];
@@ -107,10 +119,6 @@ const initilizeMatrix = (size) => {
 
 // Display Grid game:
 
-const grid = document.getElementById('grid');
-let cellWidth;
-let cellHeight;
-
 const displayGrid = () => {
     grid.innerHTML = '';
     cellWidth = (grid.offsetWidth / matrixData.length);
@@ -124,9 +132,6 @@ const displayGrid = () => {
 };
 
 // Item onclick event - select and change position item:
-
-let currentSellectCell;
-let allowSelection = true;
 
 const cellClick = (event) =>{
     if(!allowSelection){
@@ -147,13 +152,21 @@ const cellClick = (event) =>{
         (currentSelectX === newPositionX + 1 && currentSelectY === newPositionY)){
         toggleCells(currentSellectCell, event.target);
         const resultFindMatches = findMatches();
+        searchingRecursive = true;
         setTimeout(() => {
             if(resultFindMatches.hasBlocks){
+                if(currentSellectCell != undefined){
+                    currentSellectCell.classList.remove('grid-cell-selected');
+                }
                 searchRecursiveBlocks(resultFindMatches);
             }else{
                 toggleCells(event.target, currentSellectCell);
                 setTimeout(() => {
                     allowSelection = true;
+                    searchingRecursive = false;
+                    if(pendingShowFinalScoreAlert){
+                        showFinalScoreAlert();
+                    }
                 }, animationMilliseconds);
             }
         }, animationMilliseconds);
@@ -170,30 +183,28 @@ const cellClick = (event) =>{
 const toggleCells = (cellA, cellB) =>{
     const aX = parseInt(cellA.getAttribute('data-x'));
     const aY = parseInt(cellA.getAttribute('data-y'));
-    const aValue = cellA.getAttribute('data-value');
+    const aValue = matrixData[aY][aX];
     const aLeft = cellA.style.left;
     const aTop = cellA.style.top;
 
     const bX = parseInt(cellB.getAttribute('data-x'));
     const bY = parseInt(cellB.getAttribute('data-y'));
-    const bValue = cellB.getAttribute('data-value');
+    const bValue = matrixData[bY][bX];
     const bLeft = cellB.style.left;
     const bTop = cellB.style.top;
 
     cellA.setAttribute('data-x', bX);
     cellA.setAttribute('data-y', bY);
-    cellA.setAttribute('data-value', bValue);
     cellA.style.left = bLeft;
     cellA.style.top = bTop;
 
     cellB.setAttribute('data-x', aX);
     cellB.setAttribute('data-y', aY);
-    cellB.setAttribute('data-value', aValue);
     cellB.style.left = aLeft;
     cellB.style.top = aTop;
 
-    matrixData[aY][aX] = parseInt(bValue);
-    matrixData[bY][bX] = parseInt(aValue);
+    matrixData[aY][aX] = bValue;
+    matrixData[bY][bX] = aValue;
 }
 
 // Find Matches, keep positions and remove blocks:
@@ -303,12 +314,14 @@ const generateNewRandomCells = (onComplete) =>{
             }
         }
     }
-	setTimeout(() => {
+    setTimeout(() => {  
         for(let cell of newCells){
             cell.style.transform = 'scale(1)';
         }
-        onComplete();
-    }, animationMilliseconds );
+        setTimeout(() => {  
+            onComplete();
+        }, animationMilliseconds );    
+    }, 100 );
 }
 
 const getNewCell = (x, y, value) =>{
@@ -325,33 +338,12 @@ const getNewCell = (x, y, value) =>{
     let image = document.createElement("img");
     cellDiv.appendChild(image);
     image.className = "image-cell";
-    image.style.pointerEvents = 'none';      
-    switch(value){
-        case 1:
-            image.setAttribute("src","./images/asteroide.png");
-            break;
-        case 2:
-            image.setAttribute("src","./images/astronauta.png");
-            break;
-        case 3:
-            image.setAttribute("src","./images/cohete.png");
-            break;
-        case 4:
-            image.setAttribute("src","./images/extraterrestre.png");
-            break;
-        case 5:
-            image.setAttribute("src","./images/saturno.png");
-            break;
-        case 6:
-            image.setAttribute("src","./images/galaxia.png");
-            break;           
-    } 
+    image.style.pointerEvents = 'none'; 
+    image.setAttribute("src","./images/" + icons[value - 1]);
     return cellDiv;
 }
 
 // Score:
-
-let score = 0;
 
 const addScore = (blocks) =>{
     score += (blocks.blocksHorizontal.length + blocks.blocksVertical.length) * (100 * combo);
@@ -365,8 +357,6 @@ const resetScore = () =>{
 }
 
 // Combo:
-
-let combo = 1;
 
 const addCombo = () =>{
     combo += 1;
@@ -391,28 +381,30 @@ const searchRecursiveBlocks = (resultFindMatches) => {
             resetCombo();
             currentSellectCell = undefined;
             allowSelection = true;
+            searchingRecursive = false;
+            if(pendingShowFinalScoreAlert){
+                showFinalScoreAlert();
+            }
         }
     });
 }
 
 // Countdown timer:
 
-let time;
-let processID;
 const startCountdown = () =>{
-    time = 30;
+    time = maxTime;
     continueCountDown();
 }
 
 const continueCountDown = () => {
-    processID = setInterval(() => {
+    countdownProcessID = setInterval(() => {
         const timeRemaining = document.getElementById('time-remaining');
         if(time >= 10){
             timeRemaining.innerHTML = `0:${time}`;
         } else if(time >= 0){
             timeRemaining.innerHTML = `0:0${time}`;
         } else{
-            clearInterval(processID);
+            clearInterval(countdownProcessID);
             showFinalScoreAlert();
         }
         time --;
@@ -420,7 +412,7 @@ const continueCountDown = () => {
 }
 
 const pauseConstdown = () => {
-    clearInterval(processID);
+    clearInterval(countdownProcessID);
 }
 
 // Game alerts:
@@ -431,8 +423,6 @@ const infoButtonOnClick = () =>{
         continueCountDown();
     });
 }
-
-document.getElementById('help-button').addEventListener('click', infoButtonOnClick);
 
 const restartGame = () =>{
     pauseConstdown();
@@ -459,9 +449,11 @@ const restartGame = () =>{
     });
 }
 
-document.getElementById('restart-button').addEventListener('click', restartGame);
-
 const showFinalScoreAlert = () =>{
+    if(searchingRecursive){
+        pendingShowFinalScoreAlert = true;
+        return;
+    }
     const configFinalScoreAlert = {title: "¡Juego Terminado!",
             text: `Puntaje Final: ${score}`,
             closeOnClickOutside: false,
@@ -487,3 +479,9 @@ const showFinalScoreAlert = () =>{
         }
     });
 }
+
+// Add Event Listeners
+
+window.addEventListener('load', initializeGame);
+document.getElementById('help-button').addEventListener('click', infoButtonOnClick);
+document.getElementById('restart-button').addEventListener('click', restartGame);

@@ -118,7 +118,6 @@ i {
 .image-cell{
     width: 100%;
     transform: scale(1);
-    transition: 0.2s;
 }
 
 .grid-cell-selected{
