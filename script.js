@@ -61,6 +61,7 @@ const startGameByLevel = (level) =>{
     startCountdown();
     resetCombo();
     resetScore();
+    allowSelection = true;
 }
 
 const initializeGame = () =>{
@@ -125,8 +126,13 @@ const displayGrid = () => {
 // Item onclick event - select and change position item:
 
 let currentSellectCell;
+let allowSelection = true;
 
 const cellClick = (event) =>{
+    if(!allowSelection){
+        return;
+    }
+    allowSelection = false;
     const newPositionX = parseInt(event.target.getAttribute('data-x'));
     const newPositionY = parseInt(event.target.getAttribute('data-y'));
     let currentSelectX;
@@ -146,6 +152,9 @@ const cellClick = (event) =>{
                 searchRecursiveBlocks(resultFindMatches);
             }else{
                 toggleCells(event.target, currentSellectCell);
+                setTimeout(() => {
+                    allowSelection = true;
+                }, animationMilliseconds);
             }
         }, animationMilliseconds);
     } else{
@@ -154,6 +163,7 @@ const cellClick = (event) =>{
         }
         event.target.classList.add('grid-cell-selected');
         currentSellectCell = event.target;
+        allowSelection = true;
     }
 }
 
@@ -380,6 +390,7 @@ const searchRecursiveBlocks = (resultFindMatches) => {
         }else{  
             resetCombo();
             currentSellectCell = undefined;
+            allowSelection = true;
         }
     });
 }
