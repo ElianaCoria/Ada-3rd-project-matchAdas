@@ -2,7 +2,7 @@
 
 const animationMilliseconds = 500;
 const maxTime = 30;
-const icons = ["asteroide.png", "astronauta.png", "cohete.png", "extraterrestre.png", "saturno.png", "galaxia.png"]
+const icons = ["asteroid.png", "astronaut.png", "rocket.png", "alien.png", "saturn.png", "galaxy.png"]
 const grid = document.getElementById('grid');
 
 // Properties
