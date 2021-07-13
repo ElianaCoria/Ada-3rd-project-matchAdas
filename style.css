@@ -128,6 +128,10 @@ i {
     transform: scale(1.1);
 }
 
+.grid-cell-selected-by-key{
+    border: 1px dashed #fafafa;
+}
+
 .time-container{
     width: 110px;
     display: flex;
