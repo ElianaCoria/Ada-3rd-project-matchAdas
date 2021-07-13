@@ -1,7 +1,7 @@
 // Configurations:
 
 const animationMilliseconds = 500;
-const maxTime = 30;
+const maxTime = 40;
 const icons = ["asteroid.png", "astronaut.png", "rocket.png", "alien.png", "saturn.png", "galaxy.png"]
 const grid = document.getElementById('grid');
 
@@ -12,13 +12,14 @@ let matrixData = [];
 let cellWidth;
 let cellHeight;
 let currentSellectCell;
-let allowSelection = true;
+let allowSelection = false;
 let score = 0;
 let combo = 1;
 let time;
 let countdownProcessID;
 let pendingShowFinalScoreAlert = false;
 let searchingRecursive = false;
+let cellIsPreselected = false;
 
 // Game Initialization Settings:   
 
@@ -78,6 +79,7 @@ const startGameByLevel = (level) =>{
     resetCombo();
     resetScore();
     allowSelection = true;
+    pendingShowFinalScoreAlert = false;
 }
 
 const initializeGame = () =>{
@@ -150,34 +152,41 @@ const cellClick = (event) =>{
         (currentSelectX === newPositionX && currentSelectY === newPositionY + 1) ||
         (currentSelectX === newPositionX - 1 && currentSelectY === newPositionY) ||
         (currentSelectX === newPositionX + 1 && currentSelectY === newPositionY)){
-        toggleCells(currentSellectCell, event.target);
-        const resultFindMatches = findMatches();
-        searchingRecursive = true;
-        setTimeout(() => {
-            if(resultFindMatches.hasBlocks){
-                if(currentSellectCell != undefined){
-                    currentSellectCell.classList.remove('grid-cell-selected');
-                }
-                searchRecursiveBlocks(resultFindMatches);
-            }else{
-                toggleCells(event.target, currentSellectCell);
-                setTimeout(() => {
-                    allowSelection = true;
-                    searchingRecursive = false;
-                    if(pendingShowFinalScoreAlert){
-                        showFinalScoreAlert();
-                    }
-                }, animationMilliseconds);
-            }
-        }, animationMilliseconds);
+        verifyMatch(event.target);
     } else{
         if(currentSellectCell != undefined){
             currentSellectCell.classList.remove('grid-cell-selected');
+            currentSellectCell.classList.remove('grid-cell-selected-by-key');
         }
         event.target.classList.add('grid-cell-selected');
         currentSellectCell = event.target;
+        cellIsPreselected = false;
         allowSelection = true;
     }
+}
+
+const verifyMatch = (toCell) => {
+    toggleCells(currentSellectCell, toCell);
+    const resultFindMatches = findMatches();
+    searchingRecursive = true;
+    setTimeout(() => {
+        if(resultFindMatches.hasBlocks){
+            if(currentSellectCell != undefined){
+                currentSellectCell.classList.remove('grid-cell-selected');
+                currentSellectCell.classList.remove('grid-cell-selected-by-key');
+            }
+            searchRecursiveBlocks(resultFindMatches);
+        }else{
+            toggleCells(toCell, currentSellectCell);
+            setTimeout(() => {
+                allowSelection = true;
+                searchingRecursive = false;
+                if(pendingShowFinalScoreAlert){
+                    showFinalScoreAlert();
+                }
+            }, animationMilliseconds);
+        }
+    }, animationMilliseconds);
 }
 
 const toggleCells = (cellA, cellB) =>{
@@ -382,6 +391,7 @@ const searchRecursiveBlocks = (resultFindMatches) => {
             currentSellectCell = undefined;
             allowSelection = true;
             searchingRecursive = false;
+            cellIsPreselected = false;
             if(pendingShowFinalScoreAlert){
                 showFinalScoreAlert();
             }
@@ -418,13 +428,16 @@ const pauseConstdown = () => {
 // Game alerts:
 
 const infoButtonOnClick = () =>{
+    allowSelection = false;
     pauseConstdown();
     showWelcomeAlert(() => {
+        allowSelection = true;
         continueCountDown();
     });
 }
 
 const restartGame = () =>{
+    allowSelection = false;
     pauseConstdown();
     const configRestartAlert = {
         title: "¿Reiniciar juego?",
@@ -444,12 +457,14 @@ const restartGame = () =>{
                 startGameByLevel(level);
             });
        } else {
+            allowSelection = true;
             continueCountDown();
        }
     });
 }
 
 const showFinalScoreAlert = () =>{
+    allowSelection = false;
     if(searchingRecursive){
         pendingShowFinalScoreAlert = true;
         return;
@@ -480,8 +495,126 @@ const showFinalScoreAlert = () =>{
     });
 }
 
-// Add Event Listeners
+// Keyboard game:
+
+const selectionMove = (direction) =>{
+    let nextSelectionCell;
+    let allowVerifyMatch = false;
+    if(currentSellectCell == undefined){
+        nextSelectionCell = findCellByCordinate(0, 0);
+    }else{
+        const currentX = parseInt(currentSellectCell.getAttribute('data-x'));
+        const currentY = parseInt(currentSellectCell.getAttribute('data-y'));
+        let difX = 0;
+        let difY = 0;
+        switch (direction) {
+            case 'up':
+                difY = -1;
+                break;
+            case 'left':
+                difX = -1;
+                break;
+            case 'down':
+                difY = 1;
+                break;
+            case 'rigth':
+                difX = 1;
+                break;
+        }
+        let newX;
+        let newY;
+        if (currentX + difX >= 0 && currentX + difX <= matrixData.length - 1
+             && currentY + difY >= 0 && currentY + difY <= matrixData.length - 1){
+                allowVerifyMatch = true;
+        } 
+        if(currentX + difX < 0){
+            newX = matrixData.length - 1;
+        } else if (currentX + difX > matrixData.length - 1){
+            newX = 0;
+        }else{
+            newX = currentX + difX;
+        }
+
+        if(currentY + difY < 0){
+            newY = matrixData.length - 1;
+        } else if (currentY + difY > matrixData.length - 1){
+            newY = 0;
+        }else{
+            newY = currentY + difY;
+        }
+
+        nextSelectionCell = findCellByCordinate(newX, newY);
+    }
+    if(cellIsPreselected && currentSellectCell != undefined){
+        if(allowVerifyMatch){
+            verifyMatch(nextSelectionCell);
+        }else{
+            allowSelection = true; 
+        }
+    }else{
+        if(currentSellectCell != undefined){
+            currentSellectCell.classList.remove('grid-cell-selected');
+        }
+        nextSelectionCell.classList.add('grid-cell-selected');
+        currentSellectCell = nextSelectionCell;
+        allowSelection = true; 
+    }
+}
+
+const preselectCell = () =>{
+    if(currentSellectCell == undefined){
+        return;
+    }
+    if(!cellIsPreselected){
+        currentSellectCell.classList.remove('grid-cell-selected');
+        currentSellectCell.classList.add('grid-cell-selected-by-key');
+        cellIsPreselected = true    
+    }else{
+        currentSellectCell.classList.remove('grid-cell-selected-by-key');
+        currentSellectCell.classList.add('grid-cell-selected');
+        cellIsPreselected = false    
+    }
+    allowSelection = true; 
+}
+
+const keyboardInput = (event) => {
+    if(!allowSelection){
+        return;
+    }
+    allowSelection = false;
+    switch (event.code) {
+        case 'Enter':
+        case 'Space':
+            preselectCell();
+            break;
+        case 'KeyW':
+        case 'ArrowUp':
+            selectionMove('up')
+            break;
+        case 'KeyA':
+        case 'ArrowLeft':
+            selectionMove('left')
+            break;
+        case 'KeyS':
+        case 'ArrowDown':
+            selectionMove('down')
+            break;
+        case 'KeyD':
+        case 'ArrowRight':
+            selectionMove('rigth')
+            break;
+        case 'KeyR':
+            restartGame();
+            break;
+        default:
+            allowSelection = true;
+            break;
+      }
+}
+
+// Add Event Listeners:
 
 window.addEventListener('load', initializeGame);
 document.getElementById('help-button').addEventListener('click', infoButtonOnClick);
 document.getElementById('restart-button').addEventListener('click', restartGame);
+document.addEventListener('keydown', keyboardInput);
