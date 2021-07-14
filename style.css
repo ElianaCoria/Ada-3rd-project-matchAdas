@@ -37,11 +37,11 @@ i {
     text-align: center;
     font-size: 60px;
     margin-top: 0;
+    margin-bottom: 30px;
     font-family: 'Faster One', cursive;
     font-weight: 900;
     color: var(--color-title);
     text-shadow: var(--text-outline-title);
-    margin-bottom: 30px;
 }
 
 .game-control{
@@ -190,4 +190,46 @@ i {
 
 .swal-overlay {
     background-color: rgba(141, 141, 245, 0.397);
+}
+
+/* Responsive */
+
+@media screen and (max-width: 500px) {
+    main{
+        width: 350px;
+    }
+
+    .game-title {
+        font-size: 43px;
+        margin-bottom: 15px;
+    }
+
+    #grid-container{
+        height: 350px;
+    }
+
+    /* Alerts */
+
+    .swal-modal {
+      width: 330px;
+      top: 130px;
+      left: calc(50% - 165px);
+      padding: 10px;
+    }
+
+    .swal-title:first-child {
+       margin: 5px;
+    }
+
+    .swal-text {
+        text-align: center;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+    
+    .swal-footer{
+    text-align: center;
+    margin-top: 5px;
+    padding: 0;
+    }
 }
