@@ -195,6 +195,10 @@ i {
 /* Responsive */
 
 @media screen and (max-width: 500px) {
+    body{
+        max-height: 100%;
+    }
+
     main{
         width: 350px;
     }
@@ -212,7 +216,6 @@ i {
 
     .swal-modal {
       width: 330px;
-      top: 130px;
       left: calc(50% - 165px);
       padding: 10px;
     }
