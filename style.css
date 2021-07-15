@@ -195,25 +195,13 @@ i {
 /* Responsive */
 
 @media screen and (max-width: 500px) {
-    @viewport {
-        user-zoom: fixed;
-        max-height: 100%;
-    }
-
     main{
         width: 350px;
     }
 
     .game-title {
         font-size: 43px;
-    }
-
-    .game-control{
         margin-bottom: 15px;
-    }
-
-    .score-container, #help-button, #restart-button{
-        font-size: 16px;
     }
 
     #grid-container{
@@ -224,13 +212,9 @@ i {
 
     .swal-modal {
       width: 330px;
-      top: 180px;
+      top: 130px;
       left: calc(50% - 165px);
       padding: 10px;
-    }
-
-    .swal-title:first-child {
-        font-size: 20px;
     }
 
     .swal-title:first-child {
@@ -239,7 +223,7 @@ i {
 
     .swal-text {
         text-align: center;
-        font-size: 12px;
+        font-size: 14px;
         margin-top: 5px;
     }
     
