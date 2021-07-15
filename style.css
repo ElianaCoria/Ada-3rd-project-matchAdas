@@ -205,14 +205,7 @@ i {
 
     .game-title {
         font-size: 43px;
-    }
-
-    .game-control{
         margin-bottom: 15px;
-    }
-
-    .score-container, #help-button, #restart-button{
-        font-size: 16px;
     }
 
     #grid-container{
@@ -228,16 +221,12 @@ i {
     }
 
     .swal-title:first-child {
-        font-size: 20px;
-    }
-
-    .swal-title:first-child {
        margin: 5px;
     }
 
     .swal-text {
         text-align: center;
-        font-size: 12px;
+        font-size: 14px;
         margin-top: 5px;
     }
     
