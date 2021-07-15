@@ -80,6 +80,7 @@ const startGameByLevel = (level) =>{
     resetScore();
     allowSelection = true;
     pendingShowFinalScoreAlert = false;
+    currentSellectCell = undefined;
 }
 
 const initializeGame = () =>{
